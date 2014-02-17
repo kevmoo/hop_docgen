@@ -11,12 +11,16 @@ void main() {
     _expectProjectRoot();
 
     return TempDir.then((dir) {
-      print(dir.path);
+      _debugPrint(dir.path);
 
-      return generateDocJson(p.current, dir.path, stdErrWriter: print,
-          stdOutWriter: print).then((_) {
-        print(dir.listSync().length);
+      return generateDocJson(p.current, dir.path, stdErrWriter: _debugPrint,
+          stdOutWriter: _debugPrint).then((_) {
+        var items = dir.listSync();
 
+        _expectContainsFSE(items, dir.path, 'index.json', FileSystemEntityType.FILE);
+        _expectContainsFSE(items, dir.path, 'index.txt', FileSystemEntityType.FILE);
+        _expectContainsFSE(items, dir.path, 'library_list.json', FileSystemEntityType.FILE);
+        _expectContainsFSE(items, dir.path, 'hop_docgen', FileSystemEntityType.DIRECTORY);
       });
 
     });
@@ -25,8 +29,16 @@ void main() {
 
 }
 
-void _stdOutLogger(String input) {
-  print(input);
+void _expectContainsFSE(List<FileSystemEntity> entities, String basePath,
+    String path, FileSystemEntityType type) {
+  var newPath = p.join(basePath, path);
+  var matches = entities.where((fse) => fse.path == newPath).toList();
+  expect(matches, hasLength(1), reason: 'Could not find path: $newPath');
+  expect(FileSystemEntity.typeSync(newPath), type);
+}
+
+void _debugPrint(String input) {
+  // print(input);
 }
 
 void _expectProjectRoot() {
