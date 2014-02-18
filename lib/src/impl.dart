@@ -10,7 +10,7 @@ import 'package:path/path.dart' as p;
 import 'util.dart';
 
 Future doThings(String projectDirectory, String viewerPath,
-    {String targetBranch: 'gh-pages'}) {
+    String startLibraryName, {String targetBranch: 'gh-pages'}) {
 
   GitDir gitDir;
   bool isClean;
@@ -29,7 +29,8 @@ Future doThings(String projectDirectory, String viewerPath,
          }
 
          return gitDir.populateBranch(targetBranch,
-             (TempDir td) => _populateBranch(td, projectDirectory, viewerPath),
+             (TempDir td) => _populateBranch(td, projectDirectory,
+                 startLibraryName, viewerPath),
              'test!');
        })
        .then((Commit value) {
@@ -42,12 +43,14 @@ Future doThings(String projectDirectory, String viewerPath,
        });
 }
 
-Future _populateBranch(TempDir dir, String projectRoot, String viewerPath) {
+Future _populateBranch(TempDir dir, String projectRoot, String startPageName,
+    String viewerPath) {
   return copyDirectory(viewerPath, dir.path)
       .then((_) {
     var docsDir = new Directory(p.join(dir.path, 'docs'));
     docsDir.create();
-    return generateDocJson(projectRoot, docsDir.path);
+    return generateDocJson(projectRoot, docsDir.path,
+        startPageName: startPageName, stdErrWriter: print, stdOutWriter: print);
   });
 }
 
@@ -63,13 +66,22 @@ Future copyDirectory(String sourceDirectory, String targetDir) {
 }
 
 Future generateDocJson(String projectRoot, String outputDir,
-    {void stdOutWriter(String value), void stdErrWriter(String value)}) {
+    {String startPageName, void stdOutWriter(String value),
+      void stdErrWriter(String value)}) {
   requireArgument(FileSystemEntity.isDirectorySync(projectRoot), 'projectRoot',
       'Must exist');
   _requireEmptyDir(outputDir, 'outputDir');
 
   var process = 'docgen';
-  var args = ['--out', outputDir, projectRoot];
+  var args = ['--out', outputDir, '--no-include-sdk'];
+
+  if(startPageName != null) {
+    args.addAll(['--start-page', startPageName]);
+  }
+
+  args.add(projectRoot);
+
+  print(args);
 
   return Process.start(process, args)
       .then((process) => pipeProcess(process, stdOutWriter: stdOutWriter,

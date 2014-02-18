@@ -14,7 +14,7 @@ void main(List<String> args) {
 
   addTask('silly', (ctx) {
 
-    return doThings(p.current, '../kev_dartdoc_viewer');
+    return doThings(p.current, '../kev_dartdoc_viewer', 'hop_docgen');
   });
 
 
