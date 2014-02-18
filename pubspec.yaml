@@ -6,6 +6,7 @@ homepage: https://github.com/kevmoo/hop_docgen
 environment:
   sdk: '>=1.2.0-dev.4.0 <2.0.0'
 dependencies:
+  git: '>=0.1.0 <0.2.0'
   hop: '>=0.29.0'
 dev_dependencies:
   unittest: any

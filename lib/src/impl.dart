@@ -4,8 +4,52 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:bot/bot.dart';
+import 'package:bot_io/bot_io.dart';
+import 'package:git/git.dart';
 import 'package:path/path.dart' as p;
 import 'util.dart';
+
+Future doThings(String projectDirectory, String viewerPath,
+    {String targetBranch: 'gh-pages'}) {
+
+  GitDir gitDir;
+  bool isClean;
+
+  return GitDir.fromExisting(projectDirectory)
+       .then((GitDir value) {
+         gitDir = value;
+
+         return gitDir.isWorkingTreeClean();
+       })
+       .then((bool value) {
+         isClean = value;
+         if(!isClean) {
+           //TODO(kevmoo): default to failing on dirty tree, option to allow dirty
+           print('The current working dir is dirty!');
+         }
+
+         return gitDir.populateBranch(targetBranch,
+             (TempDir td) => _populateBranch(td, projectDirectory, viewerPath),
+             'test!');
+       })
+       .then((Commit value) {
+         if(value == null) {
+           print('No commit. Nothing changed.');
+         } else {
+           print('New commit created at branch $targetBranch');
+           print('Message: ${value.message}');
+         }
+       });
+}
+
+Future _populateBranch(TempDir dir, String projectRoot, String viewerPath) {
+  return copyDirectory(viewerPath, dir.path)
+      .then((_) {
+    var docsDir = new Directory(p.join(dir.path, 'docs'));
+    docsDir.create();
+    return generateDocJson(projectRoot, docsDir.path);
+  });
+}
 
 Future copyDirectory(String sourceDirectory, String targetDir) {
   requireArgument(FileSystemEntity.isDirectorySync(sourceDirectory),
@@ -25,7 +69,7 @@ Future generateDocJson(String projectRoot, String outputDir,
   _requireEmptyDir(outputDir, 'outputDir');
 
   var process = 'docgen';
-  var args = ['--out', outputDir, '.'];
+  var args = ['--out', outputDir, projectRoot];
 
   return Process.start(process, args)
       .then((process) => pipeProcess(process, stdOutWriter: stdOutWriter,
