@@ -4,7 +4,7 @@ import 'package:bot_io/bot_io.dart';
 import 'package:unittest/unittest.dart';
 
 import 'package:path/path.dart' as p;
-import 'package:hop_docgen/src/generate_json.dart';
+import 'package:hop_docgen/src/impl.dart';
 
 void main() {
   test('basics', () {
