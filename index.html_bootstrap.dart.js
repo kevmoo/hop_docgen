@@ -17775,7 +17775,7 @@ $.VI=J.de(y.t(z,"filetype"),"yaml")
 x=this.a
 w=E.ib(z)
 x.VR=F.Wi(x,C.Zo,x.VR,w)
-v=y.t(z,"startPage")
+v=y.t(z,"start-page")
 y=x.VR
 y=v==null?y:y.P9(v,new Y.xQ(x))
 x.oU=F.Wi(x,C.ZD,x.oU,y)},"call$1",null,2,0,null,464,[],"call"],
