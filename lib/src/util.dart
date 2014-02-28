@@ -1,9 +1,7 @@
-
-library util;
+library hop_docgen.util;
 
 import 'dart:async';
 import 'dart:io';
-
 
 //TODO(kevmoo): move this guy to bot_io
 Future<int> pipeProcess(Process process,

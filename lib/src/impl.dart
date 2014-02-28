@@ -6,14 +6,24 @@ import 'dart:io';
 import 'package:bot/bot.dart';
 import 'package:bot_io/bot_io.dart';
 import 'package:git/git.dart';
+import 'package:hop/hop_core.dart';
 import 'package:path/path.dart' as p;
+
 import 'util.dart';
 
-Future doThings(String projectDirectory, String viewerPath,
-    String startLibraryName, {String targetBranch: 'gh-pages'}) {
+const ALLOW_DIRTY_ARG = 'allow-dirty';
+
+Future generateDocs(TaskContext ctx, String projectDirectory, String viewerPath,
+    {String startPage, String targetBranch: 'gh-pages'}) {
+
+  if (!FileSystemEntity.isDirectorySync(viewerPath)) {
+    throw new ArgumentError(
+        'The provided viewerPath is not a directory: $viewerPath');
+  }
 
   GitDir gitDir;
-  bool isClean;
+
+  bool allowDirty = ctx.arguments[ALLOW_DIRTY_ARG];
 
   return GitDir.fromExisting(projectDirectory)
        .then((GitDir value) {
@@ -21,26 +31,44 @@ Future doThings(String projectDirectory, String viewerPath,
 
          return gitDir.isWorkingTreeClean();
        })
-       .then((bool value) {
-         isClean = value;
-         if(!isClean) {
-           //TODO(kevmoo): default to failing on dirty tree, option to allow dirty
-           print('The current working dir is dirty!');
+       .then((bool isClean) {
+         if(!allowDirty && !isClean) {
+           ctx.fail('Working tree is dirty. Cannot generate docs.\n'
+               'Try using the --${ALLOW_DIRTY_ARG} flag.');
          }
+
+          return _getCommitMessageFuture(gitDir, isClean);
+         }).then((commitMsg) {
 
          return gitDir.populateBranch(targetBranch,
              (TempDir td) => _populateBranch(td, projectDirectory,
-                 startLibraryName, viewerPath),
-             'test!');
+                 startPage, viewerPath),
+             commitMsg);
        })
        .then((Commit value) {
          if(value == null) {
-           print('No commit. Nothing changed.');
+           ctx.info('No commit. Nothing changed.');
          } else {
-           print('New commit created at branch $targetBranch');
-           print('Message: ${value.message}');
+           ctx.info('New commit created at branch $targetBranch');
+           ctx.info('Message: ${value.message}');
          }
        });
+}
+
+Future<String> _getCommitMessageFuture(GitDir gitDir, bool isClean) {
+  return gitDir.getCurrentBranch()
+    .then((BranchReference branchRef) {
+
+      var abbrevSha = branchRef.sha.substring(0, 7);
+
+      var msg = "Docs generated for ${branchRef.branchName} at ${abbrevSha}";
+
+      if(!isClean) {
+        msg = msg + ' (dirty)';
+      }
+
+      return msg;
+    });
 }
 
 Future _populateBranch(TempDir dir, String projectRoot, String startPageName,
@@ -73,15 +101,17 @@ Future generateDocJson(String projectRoot, String outputDir,
   _requireEmptyDir(outputDir, 'outputDir');
 
   var process = 'docgen';
-  var args = ['--out', outputDir, '--no-include-sdk'];
+  var args = ['--no-include-sdk'];
 
   if(startPageName != null) {
     args.addAll(['--start-page', startPageName]);
   }
 
+  args.addAll(['--out', outputDir]);
+
   args.add(projectRoot);
 
-  print(args);
+  print('docgen args: ${args.join(' ')}');
 
   return Process.start(process, args)
       .then((process) => pipeProcess(process, stdOutWriter: stdOutWriter,
@@ -95,7 +125,9 @@ Future generateDocJson(String projectRoot, String outputDir,
 
 dynamic _copyItem(FileSystemEntity fse, String source, String target) {
   if(fse is Directory) return null;
-  if(fse is Link) throw new ArgumentError('Cannot rock on the link at ${fse.path}');
+  if(fse is Link) {
+    throw new ArgumentError('Cannot rock on the link at ${fse.path}');
+  }
 
   var relative = p.relative(fse.path, from: source);
 
