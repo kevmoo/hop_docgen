@@ -1,5 +1,5 @@
 name: hop_docgen
-version: 0.0.1-dev.1
+version: 0.1.0
 author: Kevin Moore <kevmoo@google.com>
 description: Hop task for creating, publishing, and updating documentation for your Dart project
 homepage: https://github.com/kevmoo/hop_docgen
