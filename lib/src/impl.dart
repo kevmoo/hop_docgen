@@ -41,7 +41,7 @@ Future generateDocs(TaskContext ctx, String projectDirectory, String viewerPath,
          }).then((commitMsg) {
 
          return gitDir.populateBranch(targetBranch,
-             (TempDir td) => _populateBranch(td, projectDirectory,
+             (TempDir td) => _populateBranch(td.dir, projectDirectory,
                  startPage, viewerPath),
              commitMsg);
        })
@@ -71,7 +71,7 @@ Future<String> _getCommitMessageFuture(GitDir gitDir, bool isClean) {
     });
 }
 
-Future _populateBranch(TempDir dir, String projectRoot, String startPageName,
+Future _populateBranch(Directory dir, String projectRoot, String startPageName,
     String viewerPath) {
   return copyDirectory(viewerPath, dir.path)
       .then((_) {

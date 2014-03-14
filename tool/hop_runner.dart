@@ -8,7 +8,7 @@ import '../test/harness_console.dart' as test;
 
 void main(List<String> args) {
 
-  addTask('test', createUnitTestTask(test.testCore));
+  addTask('test', createUnitTestTask(test.main));
 
   addTask('docs',  createDocGenTask('../kev_dartdoc_viewer'));
 
