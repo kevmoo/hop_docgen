@@ -4,7 +4,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:bot/bot.dart';
-import 'package:bot_io/bot_io.dart';
 import 'package:git/git.dart';
 import 'package:hop/hop_core.dart';
 import 'package:path/path.dart' as p;
@@ -40,8 +39,8 @@ Future generateDocs(TaskContext ctx, String projectDirectory, String viewerPath,
           return _getCommitMessageFuture(gitDir, isClean);
          }).then((commitMsg) {
 
-         return gitDir.populateBranch(targetBranch,
-             (TempDir td) => _populateBranch(td.dir, projectDirectory,
+         return gitDir.updateBranch(targetBranch,
+             (Directory dir) => _populateBranch(dir, projectDirectory,
                  startPage, viewerPath),
              commitMsg);
        })

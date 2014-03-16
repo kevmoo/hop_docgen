@@ -7,8 +7,7 @@ environment:
   sdk: '>=1.2.0 <2.0.0'
 dependencies:
   args: '>=0.10.0 <0.11.0'
-  bot_io: '>=0.25.0 <0.27.0'
-  git: '>=0.1.0 <0.3.0'
+  git: '>=0.2.1 <0.3.0'
   hop: '>=0.30.2 <0.31.0'
 dev_dependencies:
   scheduled_test: '>=0.10.0 <0.11.0'
