@@ -26,7 +26,7 @@ Task createDocGenTask(String compiledViewerPath, {String startPage,
     return generateDocs(ctx, p.current, compiledViewerPath,
         startPage: startPage, targetBranch: targetBranch);
   },
-      description: 'generate docs n such',
+      description: 'Generate package documentation using docgen',
       argParser: _dartDocParserConfig(targetBranch));
 }
 
