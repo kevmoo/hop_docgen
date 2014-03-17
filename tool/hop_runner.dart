@@ -10,7 +10,7 @@ void main(List<String> args) {
   addTask('test', createUnitTestTask(test.main,
       timeout: const Duration(minutes: 2)));
 
-  addTask('docs',  createDocGenTask('../kev_dartdoc_viewer'));
+  addTask('docs',  createDocGenTask('../compiled_dartdoc_viewer'));
 
   runHop(args);
 }
