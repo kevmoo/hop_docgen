@@ -1683,7 +1683,6 @@ git/git.GitDir.isGitDir method
 git/git.GitDir.isWorkingTreeClean method
 git/git.GitDir.lsTree method
 git/git.GitDir.path getter
-git/git.GitDir.populateBranch method
 git/git.GitDir.runCommand method
 git/git.GitDir.showRef method
 git/git.GitDir.updateBranch method
@@ -1692,7 +1691,6 @@ git/git.GitError class
 git/git.GitError.GitError- constructor
 git/git.GitError.message property
 git/git.GitError.toString method
-git/git.PopulateTempDir typedef
 git/git.Tag class
 git/git.Tag.objectSha property
 git/git.Tag.parseCatFile method
